@@ -1,0 +1,56 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
+    ],
+    "hash": "1c1b54699a8e1a023c76e3e9775a7df3",
+    "packages": [
+        {
+            "name": "kisphp/kisphp",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://bitbucket.org/kisphp/kisphp-lib-kisphp.git",
+                "reference": "9bf29da55f473280653d642b76d794290e8551a2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://bitbucket.org/kisphp/kisphp-lib-kisphp/get/9bf29da55f473280653d642b76d794290e8551a2.zip",
+                "reference": "9bf29da55f473280653d642b76d794290e8551a2",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Kisphp": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Marius",
+                    "email": "mariusbogdan83@gmail.com"
+                }
+            ],
+            "description": "Kisphp libraries",
+            "time": "2015-02-11 14:25:18"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "dev",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": {
+        "php": ">=5.3.0"
+    },
+    "platform-dev": []
+}
