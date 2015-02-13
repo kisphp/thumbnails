@@ -4,7 +4,7 @@ namespace Kisphp;
 
 use Kisphp\Helper;
 
-class ImageResizer extends Helper
+class ImageResizer
 {
     public $quality = 85;
     public $mime    = '';
