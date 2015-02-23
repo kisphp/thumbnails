@@ -5,7 +5,9 @@
     "authors": [
         {
             "name": "Marius",
-            "email": "mariusbogdan83@gmail.com"
+            "email": "mariusbogdan83@gmail.com",
+            "homepage": "htpp://www.kisphp.com",
+            "role": "Developer, owner"
         }
     ],
     "minimum-stability": "dev",
