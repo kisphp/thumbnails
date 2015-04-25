@@ -2,14 +2,12 @@
 
 namespace Kisphp;
 
-use Kisphp\Helper;
-
 class ImageResizer
 {
-    public $quality = 85;
-    public $mime    = '';
-    public $thumb   = '';
-    public $target  = '';
+    protected $quality = 85;
+    protected $mime    = '';
+    protected $thumb   = '';
+    protected $target  = '';
 
     protected $sourceWidth  = 0;
     protected $sourceHeight = 0;
@@ -19,11 +17,15 @@ class ImageResizer
     private $newWidth       = 0;
     private $newHeight      = 0;
 
-    // default white
+    /**
+     * @var array default white color rgb format
+     */
     protected $backgroundColor = array(255, 255, 255);
 
     /**
      * set the quality of the resulted thumbnail (for jpeg files)
+     *
+     * @param int $quality
      */
     public function __construct($quality = 85)
     {
@@ -31,23 +33,24 @@ class ImageResizer
     }
 
     /**
-     * @param integer $R
-     * @param integer $G
-     * @param integer $B
+     * @param integer $RED
+     * @param integer $GREEN
+     * @param integer $BLUE
      */
-    public function setBackgroundColor($R, $G, $B)
+    public function setBackgroundColor($RED, $GREEN, $BLUE)
     {
         // make sure that value is between 0 and 255
         $this->backgroundColor = array(
-            min(255, max(0, (int) $R)),
-            min(255, max(0, (int) $G)),
-            min(255, max(0, (int) $B)),
+            min(255, max(0, (int) $RED)),
+            min(255, max(0, (int) $GREEN)),
+            min(255, max(0, (int) $BLUE)),
         );
     }
 
     /**
-     * load file to manipulate
-     * @file_location = /path/to/my/file
+     * load image file to resize
+     *
+     * @param $file_location = /path/to/my/file
      */
     public function load($file_location)
     {
@@ -75,17 +78,22 @@ class ImageResizer
                 //die('Not allowed file');
                 break;
         }
+
         $this->sourceWidth = $this->newWidth = imagesx($this->thumb);
         $this->sourceHeight = $this->newHeight = imagesy($this->thumb);
     }
 
     /**
-     * set the wirth of the thumbnail and calculate the height
+     * set the width of the thumbnail and calculate the height
+     *
+     * @param integer $width
+     * @param bool $resample
      */
-    protected function setWidth($w, $resample = true)
+    protected function setWidth($width, $resample = true)
     {
-        $this->newWidth = abs(intval($w));
-        $this->newHeight = floor(($w / $this->sourceWidth) * $this->sourceHeight);
+        $this->newWidth = abs(intval($width));
+        $this->newHeight = floor(($width / $this->sourceWidth) * $this->sourceHeight);
+
         if ( $resample === true ) {
             $this->resample();
         }
@@ -93,21 +101,31 @@ class ImageResizer
 
     /**
      * set the height of the thumbnail and calculate the witdh
+     *
+     * @param integer $height
+     * @param bool $resample
      */
-    protected function setHeight($h, $resample = true)
+    protected function setHeight($height, $resample = true)
     {
-        $this->newHeight = abs(intval($h));
-        $this->newWidth = floor(($h / $this->sourceHeight) * $this->sourceWidth);
+        $this->newHeight = abs(intval($height));
+        $this->newWidth = floor(($height / $this->sourceHeight) * $this->sourceWidth);
+
         if ( $resample === true ) {
             $this->resample();
         }
     }
 
+    /**
+     * @return int new width for image
+     */
     public function getFinalWidth()
     {
         return $this->newWidth;
     }
 
+    /**
+     * @return int new height for image
+     */
     public function getFinalHeight()
     {
         return $this->newHeight;
@@ -119,7 +137,7 @@ class ImageResizer
     public function resample()
     {
         $tmp = $this->thumb;
-        $this->thumb = $this->new_thumb();
+        $this->thumb = $this->newThumb();
 
         imagecopyresampled(
             $this->thumb, // (dst_img) Destination image link resource.
@@ -136,6 +154,11 @@ class ImageResizer
         unset($tmp);
     }
 
+    /**
+     * @param integer $w width
+     * @param integer $h height
+     * @param bool $cut_from_image
+     */
     private function crop($w, $h, $cut_from_image = false)
     {
         if ( $cut_from_image === true ) {
@@ -159,6 +182,10 @@ class ImageResizer
         }
     }
 
+    /**
+     * @param integer $w width
+     * @param integer $h height
+     */
     private function doSimpleCrop($w, $h)
     {
         if ( $this->sourceWidth >= $this->sourceHeight ) {
@@ -203,7 +230,7 @@ class ImageResizer
         }
 
         $tmp = $this->thumb;
-        $this->thumb = $this->new_thumb();
+        $this->thumb = $this->newThumb();
 
         imagecopy($this->thumb, // (dst_img) Destination image link resource.
             $tmp, // (src_img) Source image link resource.
@@ -229,7 +256,7 @@ class ImageResizer
             )
         ) {
             $tmp = $this->thumb;
-            $this->thumb = $this->new_thumb($this->originalWidth, $this->originalHeight);
+            $this->thumb = $this->newThumb($this->originalWidth, $this->originalHeight);
 
             $_top = 0;
             $_bottom = 0;
@@ -255,13 +282,16 @@ class ImageResizer
 
     /**
      * generate a new thumbnail with the specified dimensions
-     * $w = width
-     * $h = height
+     *
+     * @param int $w width
+     * @param int $h height
+     * @return resource|string
      */
-    public function new_thumb($w = 0, $h = 0)
+    public function newThumb($w = 0, $h = 0)
     {
         $_w = ($w > 0) ? $w : $this->newWidth;
         $_h = ($h > 0) ? $h : $this->newHeight;
+
         if ( $this->mime == 'PNG' ) {
             $this->thumb = imagecreatetruecolor($_w, $_h);
             $color = imagecolorallocate(
@@ -275,6 +305,7 @@ class ImageResizer
             imagealphablending($this->thumb, false);
             // save alphablending setting (important)
             imagesavealpha($this->thumb, true);
+
         } else {
             $this->thumb = imagecreatetruecolor($_w, $_h);
             $color = imagecolorallocate(
@@ -286,19 +317,20 @@ class ImageResizer
             imagefill($this->thumb, 10, 10, $color);
 
         }
+
         if ( !isset($this->mime) || $this->mime == '' ) {
             $this->mime = 'JPG';
             $this->newWidth = $_w;
             $this->newHeight = $_h;
         }
+
         return $this->thumb;
     }
 
     /**
-     * this is a controller that decide how to run your code
-     * $_w = width
-     * $_h = height
-     * $cut_from_image = used in crop files if you want to cut from it and center the thumbnail
+     * @param int $_w width
+     * @param int $_h height
+     * @param bool $cut_from_image used in crop files if you want to cut from it and center the thumbnail
      */
     public function resize($_w = 0, $_h = 0, $cut_from_image = false)
     {
@@ -314,6 +346,7 @@ class ImageResizer
     }
 
     /**
+     *
      * save the file to disk
      */
     public function save()
@@ -341,10 +374,11 @@ class ImageResizer
 
     /**
      * display the image and save the file to disk (optional)
+     *
+     * @param bool $save
      */
     public function display($save = false)
     {
-        //printr($this); die();
         switch ($this->mime) {
 
             case "PNG":
@@ -380,6 +414,8 @@ class ImageResizer
 
     /**
      * target file where will be the image saved
+     *
+     * @param string $file_location
      */
     public function target($file_location)
     {
@@ -388,6 +424,8 @@ class ImageResizer
 
     /**
      * return the image string so you will be able to save it into a file
+     *
+     * @return string
      */
     public function __toString()
     {
