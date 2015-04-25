@@ -417,7 +417,7 @@ class ImageResizer
      *
      * @param string $file_location
      */
-    public function target($file_location)
+    public function setTarget($file_location)
     {
         $this->target = $file_location;
     }
