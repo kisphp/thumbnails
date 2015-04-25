@@ -1,7 +1,10 @@
 # Thumbnail Generator
 
-```
-#!php
+This class will help you to easily resize images and save them to disc or show them to user
+
+## Usage
+```php
+<?php
 
 $image = new ImageResizer();
 // set where thumbnail will be saved (optional)
