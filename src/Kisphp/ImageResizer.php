@@ -12,10 +12,10 @@ class ImageResizer
     protected $sourceWidth  = 0;
     protected $sourceHeight = 0;
 
-    private $originalWidth  = 0;
-    private $originalHeight = 0;
-    private $newWidth       = 0;
-    private $newHeight      = 0;
+    protected $originalWidth  = 0;
+    protected $originalHeight = 0;
+    protected $newWidth       = 0;
+    protected $newHeight      = 0;
 
     /**
      * @var array default white color rgb format
@@ -134,7 +134,7 @@ class ImageResizer
     /**
      * resample the image
      */
-    public function resample()
+    protected function resample()
     {
         $tmp = $this->thumb;
         $this->thumb = $this->newThumb();
@@ -159,7 +159,7 @@ class ImageResizer
      * @param integer $h height
      * @param bool $cut_from_image
      */
-    private function crop($w, $h, $cut_from_image = false)
+    protected function crop($w, $h, $cut_from_image = false)
     {
         if ( $cut_from_image === true ) {
             $this->doSimpleCrop($w, $h);
@@ -186,7 +186,7 @@ class ImageResizer
      * @param integer $w width
      * @param integer $h height
      */
-    private function doSimpleCrop($w, $h)
+    protected function doSimpleCrop($w, $h)
     {
         if ( $this->sourceWidth >= $this->sourceHeight ) {
             if ( ($this->sourceWidth / $this->sourceHeight) > ($w / $h) ) {
@@ -246,7 +246,7 @@ class ImageResizer
     /**
      * resize the image and if it is below the requested dimensions puts a blank image below and merges them
      */
-    private function resampleCrop()
+    protected function resampleCrop()
     {
         if ( $this->originalWidth > 0
             && $this->originalHeight > 0
@@ -287,7 +287,7 @@ class ImageResizer
      * @param int $h height
      * @return resource|string
      */
-    public function newThumb($w = 0, $h = 0)
+    protected function newThumb($w = 0, $h = 0)
     {
         $_w = ($w > 0) ? $w : $this->newWidth;
         $_h = ($h > 0) ? $h : $this->newHeight;
