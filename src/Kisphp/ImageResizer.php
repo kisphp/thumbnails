@@ -33,9 +33,9 @@ class ImageResizer
     }
 
     /**
-     * @param integer $RED
-     * @param integer $GREEN
-     * @param integer $BLUE
+     * @param int $RED
+     * @param int $GREEN
+     * @param int $BLUE
      */
     public function setBackgroundColor($RED, $GREEN, $BLUE)
     {
@@ -50,7 +50,7 @@ class ImageResizer
     /**
      * load image file to resize
      *
-     * @param $file_location = /path/to/my/file
+     * @param string $file_location = /path/to/my/file
      */
     public function load($file_location)
     {
@@ -86,7 +86,7 @@ class ImageResizer
     /**
      * set the width of the thumbnail and calculate the height
      *
-     * @param integer $width
+     * @param int $width
      * @param bool $resample
      */
     protected function setWidth($width, $resample = true)
@@ -102,7 +102,7 @@ class ImageResizer
     /**
      * set the height of the thumbnail and calculate the witdh
      *
-     * @param integer $height
+     * @param int $height
      * @param bool $resample
      */
     protected function setHeight($height, $resample = true)
@@ -155,8 +155,8 @@ class ImageResizer
     }
 
     /**
-     * @param integer $w width
-     * @param integer $h height
+     * @param int $w width
+     * @param int $h height
      * @param bool $cut_from_image
      */
     protected function crop($w, $h, $cut_from_image = false)
@@ -183,8 +183,8 @@ class ImageResizer
     }
 
     /**
-     * @param integer $w width
-     * @param integer $h height
+     * @param int $w width
+     * @param int $h height
      */
     protected function doSimpleCrop($w, $h)
     {
