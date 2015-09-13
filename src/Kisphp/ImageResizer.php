@@ -4,30 +4,33 @@ namespace Kisphp;
 
 class ImageResizer
 {
-    protected $quality = 85;
-    protected $mime    = '';
-    protected $thumb   = '';
-    protected $target  = '';
 
-    protected $sourceWidth  = 0;
+    const JPEG_QUALITY = 85;
+
+    protected $quality = self::JPEG_QUALITY;
+    protected $mime = '';
+    protected $thumb = '';
+    protected $target = '';
+
+    protected $sourceWidth = 0;
     protected $sourceHeight = 0;
 
-    protected $originalWidth  = 0;
+    protected $originalWidth = 0;
     protected $originalHeight = 0;
-    protected $newWidth       = 0;
-    protected $newHeight      = 0;
+    protected $newWidth = 0;
+    protected $newHeight = 0;
 
     /**
      * @var array default white color rgb format
      */
-    protected $backgroundColor = array(255, 255, 255);
+    protected $backgroundColor = [255, 255, 255];
 
     /**
      * set the quality of the resulted thumbnail (for jpeg files)
      *
      * @param int $quality
      */
-    public function __construct($quality = 85)
+    public function __construct($quality = self::JPEG_QUALITY)
     {
         $this->quality = max(1, min(100, abs(intval($quality))));
     }
@@ -40,43 +43,44 @@ class ImageResizer
     public function setBackgroundColor($RED, $GREEN, $BLUE)
     {
         // make sure that value is between 0 and 255
-        $this->backgroundColor = array(
-            min(255, max(0, (int) $RED)),
-            min(255, max(0, (int) $GREEN)),
-            min(255, max(0, (int) $BLUE)),
-        );
+        $this->backgroundColor = [
+            min(255, max(0, (int)$RED)),
+            min(255, max(0, (int)$GREEN)),
+            min(255, max(0, (int)$BLUE)),
+        ];
     }
 
     /**
      * load image file to resize
      *
-     * @param string $file_location = /path/to/my/file
+     * @param string $sourceImageLocation = /path/to/my/file
      */
-    public function load($file_location)
+    public function load($sourceImageLocation)
     {
-        $mime = strtoupper(preg_replace("/.*\.(.*)$/", "\\1", $file_location));
+        $mime = strtoupper(preg_replace("/.*\.(.*)$/", "\\1", $sourceImageLocation));
 
         $this->mime = $mime;
         switch ($this->mime) {
-            
+
             case "PNG":
-                $this->thumb = imagecreatefrompng($file_location);
-                imagealphablending($this->thumb, false); // setting alpha blending off
-                imagesavealpha($this->thumb, true); // save alphablending setting (important)
+                $this->thumb = imagecreatefrompng($sourceImageLocation);
+                // setting alpha blending off
+                imagealphablending($this->thumb, false);
+                // save alphablending setting (important)
+                imagesavealpha($this->thumb, true);
                 break;
-            
+
             case "GIF":
-                $this->thumb = imagecreatefromgif($file_location);
+                $this->thumb = imagecreatefromgif($sourceImageLocation);
                 break;
-            
+
             case "JPG":
             case "JPEG":
-                $this->thumb = imagecreatefromjpeg($file_location);
+                $this->thumb = imagecreatefromjpeg($sourceImageLocation);
                 break;
-            
+
             default:
-                //die('Not allowed file');
-                break;
+                throw new ImageFileTypeNotAllowed();
         }
 
         $this->sourceWidth = $this->newWidth = imagesx($this->thumb);
@@ -94,7 +98,7 @@ class ImageResizer
         $this->newWidth = abs(intval($width));
         $this->newHeight = floor(($width / $this->sourceWidth) * $this->sourceHeight);
 
-        if ( $resample === true ) {
+        if ($resample === true) {
             $this->resample();
         }
     }
@@ -110,7 +114,7 @@ class ImageResizer
         $this->newHeight = abs(intval($height));
         $this->newWidth = floor(($height / $this->sourceHeight) * $this->sourceWidth);
 
-        if ( $resample === true ) {
+        if ($resample === true) {
             $this->resample();
         }
     }
@@ -136,12 +140,11 @@ class ImageResizer
      */
     protected function resample()
     {
-        $tmp = $this->thumb;
+        $thumbnailCopy = $this->thumb;
         $this->thumb = $this->newThumb();
 
-        imagecopyresampled(
-            $this->thumb, // (dst_img) Destination image link resource.
-            $tmp, // (src_img) Source image link resource.
+        imagecopyresampled($this->thumb, // (dst_img) Destination image link resource.
+            $thumbnailCopy, // (src_img) Source image link resource.
             0, // (dst_x) x-coordinate of destination point.
             0, // (dst_y) y-coordinate of destination point.
             0, // (src_x) x-coordinate of source point.
@@ -151,30 +154,30 @@ class ImageResizer
             $this->sourceWidth, // (sourceWidth) Source width.
             $this->sourceHeight // (sourceHeight) Source height.
         );
-        unset($tmp);
+        unset($thumbnailCopy);
     }
 
     /**
-     * @param int $w width
-     * @param int $h height
-     * @param bool $cut_from_image
+     * @param int $width width
+     * @param int $height height
+     * @param bool $cutImage
      */
-    protected function crop($w, $h, $cut_from_image = false)
+    protected function crop($width, $height, $cutImage = false)
     {
-        if ( $cut_from_image === true ) {
-            $this->doSimpleCrop($w, $h);
+        if ($cutImage === true) {
+            $this->doSimpleCrop($width, $height);
         } else {
-            if ( $this->sourceWidth >= $this->sourceHeight ) {
-                if ( ($this->sourceWidth / $this->sourceHeight) > ($w / $h) ) {
-                    ( $cut_from_image === true ) ? $this->setHeight($h, false) : $this->setWidth($w, false);
+            if ($this->sourceWidth >= $this->sourceHeight) {
+                if (($this->sourceWidth / $this->sourceHeight) > ($width / $height)) {
+                    ($cutImage === true) ? $this->setHeight($height, false) : $this->setWidth($width, false);
                 } else {
-                    ( $cut_from_image === true ) ? $this->setWidth($w, false) : $this->setHeight($h, false);
+                    ($cutImage === true) ? $this->setWidth($width, false) : $this->setHeight($height, false);
                 }
             } else {
-                if ( $w >= $h ) {
-                    ( $cut_from_image === true ) ? $this->setWidth($w) : $this->setHeight($h, false);
+                if ($width >= $height) {
+                    ($cutImage === true) ? $this->setWidth($width) : $this->setHeight($height, false);
                 } else {
-                    ( $cut_from_image === true ) ? $this->setHeight($h) : $this->setWidth($w, false);
+                    ($cutImage === true) ? $this->setHeight($height) : $this->setWidth($width, false);
                 }
             }
             $this->resample();
@@ -183,22 +186,22 @@ class ImageResizer
     }
 
     /**
-     * @param int $w width
-     * @param int $h height
+     * @param int $width width
+     * @param int $height height
      */
-    protected function doSimpleCrop($w, $h)
+    protected function doSimpleCrop($width, $height)
     {
-        if ( $this->sourceWidth >= $this->sourceHeight ) {
-            if ( ($this->sourceWidth / $this->sourceHeight) > ($w / $h) ) {
-                $this->setHeight($h, false);
+        if ($this->sourceWidth >= $this->sourceHeight) {
+            if (($this->sourceWidth / $this->sourceHeight) > ($width / $height)) {
+                $this->setHeight($height, false);
             } else {
-                $this->setWidth($w, false);
+                $this->setWidth($width, false);
             }
         } else {
-            if ( $w >= $h ) {
-                $this->setWidth($w, false);
+            if ($width >= $height) {
+                $this->setWidth($width, false);
             } else {
-                $this->setHeight($h, false);
+                $this->setHeight($height, false);
             }
         }
         $this->resample();
@@ -211,21 +214,21 @@ class ImageResizer
         $this->src_x = 0;
         $this->src_y = 0;
 
-        if ( $this->sourceWidth >= $this->sourceHeight ) {
-            if ( $this->sourceWidth / $this->sourceHeight > $w / $h ) {
-                $this->newWidth = $w;
-                $this->dst_x = ($this->sourceWidth - $w) / 2;
+        if ($this->sourceWidth >= $this->sourceHeight) {
+            if ($this->sourceWidth / $this->sourceHeight > $width / $height) {
+                $this->newWidth = $width;
+                $this->dst_x = ($this->sourceWidth - $width) / 2;
             } else {
-                $this->newHeight = $h;
-                $this->dst_y = ($this->sourceHeight - $h) / 2;
+                $this->newHeight = $height;
+                $this->dst_y = ($this->sourceHeight - $height) / 2;
             }
         } else {
-            if ( $w >= $h ) {
-                $this->newHeight = $h;
-                $this->dst_y = ($this->sourceHeight - $h) / 2;
+            if ($width >= $height) {
+                $this->newHeight = $height;
+                $this->dst_y = ($this->sourceHeight - $height) / 2;
             } else {
-                $this->newWidth = $w;
-                $this->dst_x = ($this->sourceWidth - $w) / 2;
+                $this->newWidth = $width;
+                $this->dst_x = ($this->sourceWidth - $width) / 2;
             }
         }
 
@@ -248,58 +251,40 @@ class ImageResizer
      */
     protected function resampleCrop()
     {
-        if ( $this->originalWidth > 0
-            && $this->originalHeight > 0
-            && (
-                $this->newWidth != $this->originalWidth
-                || $this->newHeight != $this->originalHeight
-            )
-        ) {
+        if ($this->originalWidth > 0 && $this->originalHeight > 0 && ($this->newWidth != $this->originalWidth || $this->newHeight != $this->originalHeight)) {
             $tmp = $this->thumb;
             $this->thumb = $this->newThumb($this->originalWidth, $this->originalHeight);
 
             $_top = 0;
             $_bottom = 0;
 
-            if ( $this->newWidth != $this->originalWidth ) {
+            if ($this->newWidth != $this->originalWidth) {
                 $_top = ($this->originalWidth - $this->newWidth) / 2;
             }
-            if ( $this->newHeight != $this->originalHeight ) {
+            if ($this->newHeight != $this->originalHeight) {
                 $_bottom = ($this->originalHeight - $this->newHeight) / 2;
             }
-            imagecopy(
-                $this->thumb,
-                $tmp,
-                $_top,
-                $_bottom,
-                0,
-                0,
-                $this->newWidth,
-                $this->newHeight
-            );
+            imagecopy($this->thumb, $tmp, $_top, $_bottom, 0, 0, $this->newWidth, $this->newHeight);
         }
     }
 
     /**
      * generate a new thumbnail with the specified dimensions
      *
-     * @param int $w width
-     * @param int $h height
+     * @param int $width width
+     * @param int $height height
+     *
      * @return resource|string
      */
-    protected function newThumb($w = 0, $h = 0)
+    protected function newThumb($width = 0, $height = 0)
     {
-        $_w = ($w > 0) ? $w : $this->newWidth;
-        $_h = ($h > 0) ? $h : $this->newHeight;
+        $_w = ($width > 0) ? $width : $this->newWidth;
+        $_h = ($height > 0) ? $height : $this->newHeight;
 
-        if ( $this->mime == 'PNG' ) {
+        if ($this->mime == 'PNG') {
             $this->thumb = imagecreatetruecolor($_w, $_h);
-            $color = imagecolorallocate(
-                $this->thumb,
-                $this->backgroundColor[0],
-                $this->backgroundColor[1],
-                $this->backgroundColor[2]
-            );
+            $color = imagecolorallocate($this->thumb, $this->backgroundColor[0], $this->backgroundColor[1],
+                $this->backgroundColor[2]);
             imagefill($this->thumb, 0, 0, $color);
             // setting alpha blending off
             imagealphablending($this->thumb, false);
@@ -308,17 +293,13 @@ class ImageResizer
 
         } else {
             $this->thumb = imagecreatetruecolor($_w, $_h);
-            $color = imagecolorallocate(
-                $this->thumb,
-                $this->backgroundColor[0],
-                $this->backgroundColor[1],
-                $this->backgroundColor[2]
-            );
+            $color = imagecolorallocate($this->thumb, $this->backgroundColor[0], $this->backgroundColor[1],
+                $this->backgroundColor[2]);
             imagefill($this->thumb, 10, 10, $color);
 
         }
 
-        if ( !isset($this->mime) || $this->mime == '' ) {
+        if (!isset($this->mime) || $this->mime == '') {
             $this->mime = 'JPG';
             $this->newWidth = $_w;
             $this->newHeight = $_h;
@@ -328,20 +309,20 @@ class ImageResizer
     }
 
     /**
-     * @param int $_w width
-     * @param int $_h height
-     * @param bool $cut_from_image used in crop files if you want to cut from it and center the thumbnail
+     * @param int $width width
+     * @param int $height height
+     * @param bool $cutImage used in crop files if you want to cut from it and center the thumbnail
      */
-    public function resize($_w = 0, $_h = 0, $cut_from_image = false)
+    public function resize($width = 0, $height = 0, $cutImage = false)
     {
-        $this->originalWidth = $_w;
-        $this->originalHeight = $_h;
-        if ( $_w > 0 && $_h > 0 ) {
-            $this->crop($_w, $_h, $cut_from_image);
-        } elseif ( $_w > 0 && $_h <= 0 ) {
-            $this->setWidth($_w, true);
-        } elseif ( $_h > 0 && $_w <= 0 ) {
-            $this->setHeight($_h, true);
+        $this->originalWidth = $width;
+        $this->originalHeight = $height;
+        if ($width > 0 && $height > 0) {
+            $this->crop($width, $height, $cutImage);
+        } elseif ($width > 0 && $height <= 0) {
+            $this->setWidth($width, true);
+        } elseif ($height > 0 && $width <= 0) {
+            $this->setHeight($height, true);
         }
     }
 
@@ -367,8 +348,7 @@ class ImageResizer
                 break;
 
             default:
-                die('Not allowed file');
-                break;
+                throw new ImageFileTypeNotAllowed();
         }
     }
 
@@ -383,43 +363,42 @@ class ImageResizer
 
             case "PNG":
                 header("Content-type: image/png");
-                if ( $save === true ) {
+                if ($save === true) {
                     imagepng($this->thumb, $this->target, 0);
                 }
-                imagepng($this->thumb, NULL, 1);
+                imagepng($this->thumb, null, 1);
                 break;
 
             case "GIF":
                 header("Content-type: image/gif");
-                if ( $save === true ) {
+                if ($save === true) {
                     imagegif($this->thumb, $this->target);
                 }
-                imagegif($this->thumb, NULL);
+                imagegif($this->thumb, null);
                 break;
 
             case "JPG":
             case "JPEG":
                 header("Content-type: image/jpeg");
-                if ( $save === true ) {
+                if ($save === true) {
                     imagejpeg($this->thumb, $this->target, $this->quality);
                 }
-                imagejpeg($this->thumb, NULL, $this->quality);
+                imagejpeg($this->thumb, null, $this->quality);
                 break;
 
             default:
-                die('Not allowed file');
-                break;
+                throw new ImageFileTypeNotAllowed();
         }
     }
 
     /**
      * target file where will be the image saved
      *
-     * @param string $file_location
+     * @param string $targetDirectory
      */
-    public function setTarget($file_location)
+    public function setTarget($targetDirectory)
     {
-        $this->target = $file_location;
+        $this->target = $targetDirectory;
     }
 
     /**
@@ -433,16 +412,16 @@ class ImageResizer
         switch ($this->mime) {
 
             case "PNG":
-                imagepng($this->thumb, NULL, 1);
+                imagepng($this->thumb, null, 1);
                 break;
 
             case "GIF":
-                imagegif($this->thumb, NULL);
+                imagegif($this->thumb, null);
                 break;
 
             case "JPG":
             case "JPEG":
-                imagejpeg($this->thumb, NULL, $this->quality);
+                imagejpeg($this->thumb, null, $this->quality);
                 break;
 
             default:
@@ -450,11 +429,11 @@ class ImageResizer
                 break;
         }
 
-        $tmp = ob_get_clean();
-        if ( is_resource($this->thumb) ) {
+        $memoryBuffer = ob_get_clean();
+        if (is_resource($this->thumb)) {
             imagedestroy($this->thumb);
         }
 
-        return $tmp;
+        return $memoryBuffer;
     }
 }
