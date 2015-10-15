@@ -2,9 +2,11 @@
 
 namespace Kisphp;
 
+/**
+ * @deprecated
+ */
 class ImageResizer
 {
-
     const JPEG_QUALITY = 85;
 
     protected $quality = self::JPEG_QUALITY;
@@ -44,16 +46,18 @@ class ImageResizer
     {
         // make sure that value is between 0 and 255
         $this->backgroundColor = [
-            min(255, max(0, (int)$RED)),
-            min(255, max(0, (int)$GREEN)),
-            min(255, max(0, (int)$BLUE)),
+            min(255, max(0, (int) $RED)),
+            min(255, max(0, (int) $GREEN)),
+            min(255, max(0, (int) $BLUE)),
         ];
     }
 
     /**
      * load image file to resize
      *
-     * @param string $sourceImageLocation = /path/to/my/file
+     * @param $sourceImageLocation
+     *
+     * @throws ImageFileTypeNotAllowed
      */
     public function load($sourceImageLocation)
     {
@@ -191,19 +195,10 @@ class ImageResizer
      */
     protected function doSimpleCrop($width, $height)
     {
-        if ($this->sourceWidth >= $this->sourceHeight) {
-            if (($this->sourceWidth / $this->sourceHeight) > ($width / $height)) {
-                $this->setHeight($height, false);
-            } else {
-                $this->setWidth($width, false);
-            }
-        } else {
-            if ($width >= $height) {
-                $this->setWidth($width, false);
-            } else {
-                $this->setHeight($height, false);
-            }
-        }
+        dump($this);
+        $this->getResizedDimensions($width, $height);
+        dump($this);
+        die;
         $this->resample();
 
         $this->sourceWidth = $this->newWidth;
@@ -214,7 +209,13 @@ class ImageResizer
         $this->src_x = 0;
         $this->src_y = 0;
 
+dump($this);die;
         if ($this->sourceWidth >= $this->sourceHeight) {
+            $sourceRatio = $this->sourceWidth / $this->sourceHeight;
+            $targetRatio = $width / $height;
+            dump($sourceRatio);
+            dump($targetRatio);
+        dump($this);die;
             if ($this->sourceWidth / $this->sourceHeight > $width / $height) {
                 $this->newWidth = $width;
                 $this->dst_x = ($this->sourceWidth - $width) / 2;
@@ -231,6 +232,9 @@ class ImageResizer
                 $this->dst_x = ($this->sourceWidth - $width) / 2;
             }
         }
+
+//        dump($this);
+//        die;
 
         $tmp = $this->thumb;
         $this->thumb = $this->newThumb();
@@ -318,9 +322,15 @@ class ImageResizer
         $this->originalWidth = $width;
         $this->originalHeight = $height;
         if ($width > 0 && $height > 0) {
+//            dump($width);
+//            dump($height);
+//            dump($cutImage);
+//            die;
             $this->crop($width, $height, $cutImage);
+
         } elseif ($width > 0 && $height <= 0) {
             $this->setWidth($width, true);
+
         } elseif ($height > 0 && $width <= 0) {
             $this->setHeight($height, true);
         }
@@ -355,10 +365,14 @@ class ImageResizer
     /**
      * display the image and save the file to disk (optional)
      *
-     * @param bool $save
+     * @param bool|false $save
+     *
+     * @throws ImageFileTypeNotAllowed
      */
     public function display($save = false)
     {
+        $save = false;
+
         switch ($this->mime) {
 
             case "PNG":
@@ -435,5 +449,26 @@ class ImageResizer
         }
 
         return $memoryBuffer;
+    }
+
+    /**
+     * @param $width
+     * @param $height
+     */
+    protected function getResizedDimensions($width, $height)
+    {
+        if ($this->sourceWidth <= $this->sourceHeight) {
+            if (($this->sourceWidth / $this->sourceHeight) > ($width / $height)) {
+                $this->setHeight($height, false);
+            } else {
+                $this->setWidth($width, false);
+            }
+        } else {
+            if ($width >= $height) {
+                $this->setWidth($width, false);
+            } else {
+                $this->setHeight($height, false);
+            }
+        }
     }
 }

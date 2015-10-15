@@ -21,5 +21,8 @@
     },
     "scripts": {
         "post-install-cmd": "phpunit"
+    },
+    "require-dev": {
+        "symfony/var-dumper": "^3.0@dev"
     }
 }
