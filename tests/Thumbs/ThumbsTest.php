@@ -4,7 +4,7 @@ use Kisphp\ImageResizer;
 
 class ExampleClassTest extends PHPUnit_Framework_TestCase
 {
-    const IMAGE_FILE = '/tmp/kisphp_image_file.jpg';
+    const IMAGE_FILE = '/tmp/dummy_image_file.jpg';
 
     public function setUp()
     {
@@ -19,21 +19,11 @@ class ExampleClassTest extends PHPUnit_Framework_TestCase
         }
     }
 
-    public function test_image_width_and_height()
-    {
-        $img = new ImageResizer();
-        $img->load(self::IMAGE_FILE);
-        $img->resize(100, 100);
-
-        $this->assertEquals(100, $img->getFinalWidth());
-        $this->assertNotEquals(100, $img->getFinalHeight());
-    }
-
     public function test_image_width_and_height_crop()
     {
         $img = new ImageResizer();
         $img->load(self::IMAGE_FILE);
-        $img->resize(100, 100, true);
+        $img->resize(100, 100);
 
         $this->assertEquals(100, $img->getFinalWidth());
         $this->assertEquals(100, $img->getFinalHeight());
