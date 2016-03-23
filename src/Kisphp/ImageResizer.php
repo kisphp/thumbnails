@@ -4,21 +4,77 @@ namespace Kisphp;
 
 class ImageResizer
 {
-
     const JPEG_QUALITY = 85;
 
+    /**
+     * @var int
+     */
     protected $quality = self::JPEG_QUALITY;
-    protected $mime = '';
-    protected $thumb = '';
-    protected $target = '';
 
+    /**
+     * @var int
+     */
+    protected $mime;
+
+    /**
+     * @var Resource
+     */
+    protected $thumb;
+
+    /**
+     * @var string
+     */
+    protected $target;
+
+    /**
+     * @var int
+     */
     protected $sourceWidth = 0;
+
+    /**
+     * @var int
+     */
     protected $sourceHeight = 0;
 
+    /**
+     * @var int
+     */
     protected $originalWidth = 0;
+
+    /**
+     * @var int
+     */
     protected $originalHeight = 0;
+
+    /**
+     * @var int
+     */
     protected $newWidth = 0;
+
+    /**
+     * @var int
+     */
     protected $newHeight = 0;
+
+    /**
+     * @var int
+     */
+    protected $src_x = 0;
+
+    /**
+     * @var int
+     */
+    protected $src_y = 0;
+
+    /**
+     * @var int
+     */
+    protected $dst_x = 0;
+
+    /**
+     * @var int
+     */
+    protected $dst_y = 0;
 
     /**
      * @var array default white color rgb format
@@ -54,15 +110,15 @@ class ImageResizer
      * load image file to resize
      *
      * @param string $sourceImageLocation = /path/to/my/file
+     *
+     * @throws ImageFileTypeNotAllowed
      */
     public function load($sourceImageLocation)
     {
-        $mime = strtoupper(preg_replace("/.*\.(.*)$/", "\\1", $sourceImageLocation));
+        $this->mime = $this->getImageType($sourceImageLocation);
 
-        $this->mime = $mime;
         switch ($this->mime) {
-
-            case "PNG":
+            case IMAGETYPE_PNG:
                 $this->thumb = imagecreatefrompng($sourceImageLocation);
                 // setting alpha blending off
                 imagealphablending($this->thumb, false);
@@ -70,12 +126,12 @@ class ImageResizer
                 imagesavealpha($this->thumb, true);
                 break;
 
-            case "GIF":
+            case IMAGETYPE_GIF:
                 $this->thumb = imagecreatefromgif($sourceImageLocation);
                 break;
 
-            case "JPG":
-            case "JPEG":
+            case IMAGETYPE_JPEG:
+            case IMAGETYPE_JPEG2000:
                 $this->thumb = imagecreatefromjpeg($sourceImageLocation);
                 break;
 
@@ -85,6 +141,16 @@ class ImageResizer
 
         $this->sourceWidth = $this->newWidth = imagesx($this->thumb);
         $this->sourceHeight = $this->newHeight = imagesy($this->thumb);
+    }
+
+    /**
+     * @param string $sourceImageLocation
+     *
+     * @return int
+     */
+    protected function getImageType($sourceImageLocation)
+    {
+        return exif_imagetype($sourceImageLocation);
     }
 
     /**
@@ -333,17 +399,16 @@ class ImageResizer
     public function save()
     {
         switch ($this->mime) {
-
-            case "PNG":
+            case IMAGETYPE_PNG:
                 imagepng($this->thumb, $this->target, 0);
                 break;
 
-            case "GIF":
+            case IMAGETYPE_GIF:
                 imagegif($this->thumb, $this->target);
                 break;
 
-            case "JPG":
-            case "JPEG":
+            case IMAGETYPE_JPEG:
+            case IMAGETYPE_JPEG2000:
                 imagejpeg($this->thumb, $this->target, $this->quality);
                 break;
 
@@ -356,12 +421,14 @@ class ImageResizer
      * display the image and save the file to disk (optional)
      *
      * @param bool $save
+     *
+     * @throws ImageFileTypeNotAllowed
      */
     public function display($save = false)
     {
         switch ($this->mime) {
 
-            case "PNG":
+            case IMAGETYPE_PNG:
                 header("Content-type: image/png");
                 if ($save === true) {
                     imagepng($this->thumb, $this->target, 0);
@@ -369,7 +436,7 @@ class ImageResizer
                 imagepng($this->thumb, null, 1);
                 break;
 
-            case "GIF":
+            case IMAGETYPE_GIF:
                 header("Content-type: image/gif");
                 if ($save === true) {
                     imagegif($this->thumb, $this->target);
@@ -377,8 +444,8 @@ class ImageResizer
                 imagegif($this->thumb, null);
                 break;
 
-            case "JPG":
-            case "JPEG":
+            case IMAGETYPE_JPEG:
+            case IMAGETYPE_JPEG2000:
                 header("Content-type: image/jpeg");
                 if ($save === true) {
                     imagejpeg($this->thumb, $this->target, $this->quality);
@@ -411,16 +478,16 @@ class ImageResizer
         ob_start();
         switch ($this->mime) {
 
-            case "PNG":
+            case IMAGETYPE_PNG:
                 imagepng($this->thumb, null, 1);
                 break;
 
-            case "GIF":
+            case IMAGETYPE_GIF:
                 imagegif($this->thumb, null);
                 break;
 
-            case "JPG":
-            case "JPEG":
+            case IMAGETYPE_JPEG:
+            case IMAGETYPE_JPEG2000:
                 imagejpeg($this->thumb, null, $this->quality);
                 break;
 
