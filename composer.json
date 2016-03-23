@@ -4,7 +4,7 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Marius",
+            "name": "Marius Bogdan Rizac",
             "email": "mariusbogdan83@gmail.com",
             "homepage": "http://www.kisphp.com",
             "role": "Developer, owner"
@@ -18,8 +18,5 @@
         "psr-0": {
             "Kisphp": "src/"
         }
-    },
-    "scripts": {
-        "post-install-cmd": "phpunit"
     }
 }
