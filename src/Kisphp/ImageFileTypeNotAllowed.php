@@ -4,5 +4,4 @@ namespace Kisphp;
 
 class ImageFileTypeNotAllowed extends \Exception
 {
-
 }
