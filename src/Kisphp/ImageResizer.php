@@ -98,7 +98,7 @@ class ImageResizer
      */
     public function setBackgroundColor($RED, $GREEN, $BLUE)
     {
-        // make sure that value is between 0 and 255
+        // make sure that each value is between 0 and 255
         $this->backgroundColor = [
             min(255, max(0, (int) $RED)),
             min(255, max(0, (int) $GREEN)),
