@@ -102,6 +102,22 @@ class ImageResizer
     }
 
     /**
+     * @return int new width for image
+     */
+    public function getFinalWidth()
+    {
+        return $this->newWidth;
+    }
+
+    /**
+     * @return int new height for image
+     */
+    public function getFinalHeight()
+    {
+        return $this->newHeight;
+    }
+
+    /**
      * @param int $RED
      * @param int $GREEN
      * @param int $BLUE
@@ -157,6 +173,106 @@ class ImageResizer
     }
 
     /**
+     * @param int $width
+     * @param int $height
+     * @param bool $cutImage used in crop files if you want to cut from it and center the thumbnail
+     */
+    public function resize($width = 0, $height = 0, $cutImage = false)
+    {
+        $this->originalWidth = $width;
+        $this->originalHeight = $height;
+
+        if ($width > 0 && $height > 0) {
+            $this->crop($width, $height, $cutImage);
+
+            return;
+        }
+
+        if ($width > 0 && $height <= 0) {
+            $this->setWidth($width, true);
+
+            return;
+        }
+
+        if ($height > 0 && $width <= 0) {
+            $this->setHeight($height, true);
+        }
+    }
+
+    /**
+     * save the file to disk
+     */
+    public function save()
+    {
+        $imageString = $this->getImageString();
+
+        return (bool) file_put_contents($this->target, $imageString);
+    }
+
+    /**
+     * display the image and save the file to disk (optional)
+     *
+     * @param bool|false $save
+     *
+     * @throws ImageFileTypeNotAllowed
+     *
+     * @return string
+     */
+    public function display($save = false)
+    {
+        $imageString = $this->getImageString();
+
+        if ($save === true) {
+            $this->save();
+        }
+        if (!headers_sent()) {
+            header('Content-Type: ' . $this->mime);
+        }
+
+        return $imageString;
+    }
+
+    /**
+     * @return string
+     */
+    public function getImageString()
+    {
+        if ($this->imageAsString !== null) {
+            return $this->imageAsString;
+        }
+
+        ob_start();
+        switch ($this->mime) {
+
+            case IMAGETYPE_PNG:
+                imagepng($this->thumb, null, 1);
+                break;
+
+            case IMAGETYPE_GIF:
+                imagegif($this->thumb, null);
+                break;
+
+            case IMAGETYPE_JPEG:
+            case IMAGETYPE_JPEG2000:
+                imagejpeg($this->thumb, null, $this->quality);
+                break;
+        }
+        $this->imageAsString = ob_get_clean();
+
+        return $this->imageAsString;
+    }
+
+    /**
+     * target file where will be the image saved
+     *
+     * @param string $targetDirectory
+     */
+    public function setTarget($targetDirectory)
+    {
+        $this->target = $targetDirectory;
+    }
+
+    /**
      * @param string $sourceImageLocation
      *
      * @return int
@@ -196,22 +312,6 @@ class ImageResizer
         if ($resample === true) {
             $this->resample();
         }
-    }
-
-    /**
-     * @return int new width for image
-     */
-    public function getFinalWidth()
-    {
-        return $this->newWidth;
-    }
-
-    /**
-     * @return int new height for image
-     */
-    public function getFinalHeight()
-    {
-        return $this->newHeight;
     }
 
     /**
@@ -370,100 +470,6 @@ class ImageResizer
     }
 
     /**
-     * @param int $width
-     * @param int $height
-     * @param bool $cutImage used in crop files if you want to cut from it and center the thumbnail
-     */
-    public function resize($width = 0, $height = 0, $cutImage = false)
-    {
-        $this->originalWidth = $width;
-        $this->originalHeight = $height;
-
-        if ($width > 0 && $height > 0) {
-            $this->crop($width, $height, $cutImage);
-
-            return;
-        }
-
-        if ($width > 0 && $height <= 0) {
-            $this->setWidth($width, true);
-
-            return;
-        }
-
-        if ($height > 0 && $width <= 0) {
-            $this->setHeight($height, true);
-        }
-    }
-
-    /**
-     * save the file to disk
-     */
-    public function save()
-    {
-        $imageString = $this->getImageString();
-
-        return (bool) file_put_contents($this->target, $imageString);
-    }
-
-    /**
-     * display the image and save the file to disk (optional)
-     *
-     * @param bool|false $save
-     *
-     * @throws ImageFileTypeNotAllowed
-     *
-     * @return string
-     */
-    public function display($save = false)
-    {
-        $imageString = $this->getImageString();
-
-        if ($save === true) {
-            $this->save();
-        }
-
-        return $imageString;
-    }
-
-    public function getImageString()
-    {
-        if ($this->imageAsString !== null) {
-            return $this->imageAsString;
-        }
-
-        ob_start();
-        switch ($this->mime) {
-
-            case IMAGETYPE_PNG:
-                imagepng($this->thumb, null, 1);
-                break;
-
-            case IMAGETYPE_GIF:
-                imagegif($this->thumb, null);
-                break;
-
-            case IMAGETYPE_JPEG:
-            case IMAGETYPE_JPEG2000:
-                imagejpeg($this->thumb, null, $this->quality);
-                break;
-        }
-        $this->imageAsString = ob_get_clean();
-
-        return $this->imageAsString;
-    }
-
-    /**
-     * target file where will be the image saved
-     *
-     * @param string $targetDirectory
-     */
-    public function setTarget($targetDirectory)
-    {
-        $this->target = $targetDirectory;
-    }
-
-    /**
      * @param $width
      * @param $height
      * @param $cutImage
@@ -488,7 +494,9 @@ class ImageResizer
             return;
         }
 
-        // portrait
+        // original is portrait
+
+        // portrait to landscape
         if ($width >= $height) {
             ($cutImage === true)
                 // cut image by withh
