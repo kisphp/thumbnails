@@ -1,4 +1,13 @@
-# Thumbnail Generator
+# KISPHP Thumbnail Generator
+
+[![Build Status](https://travis-ci.org/kisphp/thumbnails.svg?branch=master)](https://travis-ci.org/kisphp/thumbnails)
+[![codecov.io](https://codecov.io/github/kisphp/thumbnails/coverage.svg?branch=master)](https://codecov.io/github/kisphp/thumbnails?branch=master)
+
+[![Latest Stable Version](https://poser.pugx.org/kisphp/thumbnails/v/stable)](https://packagist.org/packages/kisphp/thumbnails)
+[![Total Downloads](https://poser.pugx.org/kisphp/thumbnails/downloads)](https://packagist.org/packages/kisphp/thumbnails)
+[![License](https://poser.pugx.org/kisphp/thumbnails/license)](https://packagist.org/packages/kisphp/thumbnails)
+[![Monthly Downloads](https://poser.pugx.org/kisphp/thumbnails/d/monthly)](https://packagist.org/packages/kisphp/thumbnails)
+
 
 This class will help you to easily resize images and save them to disc or show them to user
 

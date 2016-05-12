@@ -100,9 +100,9 @@ class ImageResizer
     {
         // make sure that value is between 0 and 255
         $this->backgroundColor = [
-            min(255, max(0, (int)$RED)),
-            min(255, max(0, (int)$GREEN)),
-            min(255, max(0, (int)$BLUE)),
+            min(255, max(0, (int) $RED)),
+            min(255, max(0, (int) $GREEN)),
+            min(255, max(0, (int) $BLUE)),
         ];
     }
 
@@ -356,13 +356,11 @@ class ImageResizer
             imagealphablending($this->thumb, false);
             // save alphablending setting (important)
             imagesavealpha($this->thumb, true);
-
         } else {
             $this->thumb = imagecreatetruecolor($_w, $_h);
             $color = imagecolorallocate($this->thumb, $this->backgroundColor[0], $this->backgroundColor[1],
                 $this->backgroundColor[2]);
             imagefill($this->thumb, 10, 10, $color);
-
         }
 
         if (!isset($this->mime) || $this->mime == '') {
@@ -393,7 +391,6 @@ class ImageResizer
     }
 
     /**
-     *
      * save the file to disk
      */
     public function save()
@@ -429,7 +426,7 @@ class ImageResizer
         switch ($this->mime) {
 
             case IMAGETYPE_PNG:
-                header("Content-type: image/png");
+                header('Content-type: image/png');
                 if ($save === true) {
                     imagepng($this->thumb, $this->target, 0);
                 }
@@ -437,7 +434,7 @@ class ImageResizer
                 break;
 
             case IMAGETYPE_GIF:
-                header("Content-type: image/gif");
+                header('Content-type: image/gif');
                 if ($save === true) {
                     imagegif($this->thumb, $this->target);
                 }
@@ -446,7 +443,7 @@ class ImageResizer
 
             case IMAGETYPE_JPEG:
             case IMAGETYPE_JPEG2000:
-                header("Content-type: image/jpeg");
+                header('Content-type: image/jpeg');
                 if ($save === true) {
                     imagejpeg($this->thumb, $this->target, $this->quality);
                 }
