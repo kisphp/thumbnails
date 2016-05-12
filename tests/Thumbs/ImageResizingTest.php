@@ -18,7 +18,70 @@ class ImageResizingTest extends PHPUnit_Framework_TestCase
         $img->load($source);
         $img->setTarget($target);
         $img->resize($width, $height, $cutImage);
+//        ob_clean();
+//        ob_start();
+//        $img->display(true);
+//        ob_clean();
+//        dump(headers_list());
+//        die;
         $img->save();
+    }
+
+    /**
+     * @dataProvider fixedCropProvider()
+     *
+     * @param int $sourceWdith
+     * @param int $sourceHeight
+     * @param int $targetWdith
+     * @param int $targetHeight
+     */
+    public function testCrop($sourceWdith, $sourceHeight, $targetWdith, $targetHeight)
+    {
+        $extensions = [
+            'jpg',
+            'png',
+            'gif',
+        ];
+
+        foreach ($extensions as $ext) {
+            $source = __DIR__ . self::IMAGES_DIR . '/' . $sourceWdith . 'x' . $sourceHeight . '.' . $ext;
+            $target = __DIR__ . self::IMAGES_DIR . '/th-' . $targetWdith . 'x' . $targetHeight . '.' . $ext;
+
+            $this->resizeImage($source, $target, $targetWdith, $targetHeight, true);
+
+            $size = getimagesize($target);
+
+            $this->assertEquals($targetWdith, $size[0]);
+            $this->assertEquals($targetHeight, $size[1]);
+
+            unlink($target);
+        }
+    }
+
+    public function fixedCropProvider()
+    {
+        return [
+            [300, 200, 200, 100],
+            [300, 200, 200, 200],
+            [300, 200, 100, 200],
+            [300, 200, 10, 200],
+            [300, 200, 100, 20],
+            [300, 200, 50, 50],
+
+            [200, 280, 200, 100],
+            [200, 280, 200, 200],
+            [200, 280, 100, 200],
+            [200, 280, 10, 200],
+            [200, 280, 100, 20],
+            [200, 280, 50, 50],
+
+            [200, 200, 200, 100],
+            [200, 200, 200, 200],
+            [200, 200, 100, 200],
+            [200, 200, 10, 200],
+            [200, 200, 100, 20],
+            [200, 200, 50, 50],
+        ];
     }
 
     /**
@@ -29,31 +92,51 @@ class ImageResizingTest extends PHPUnit_Framework_TestCase
      * @param int $targetWdith
      * @param int $targetHeight
      */
-    public function testResizing($sourceWdith, $sourceHeight, $targetWdith, $targetHeight)
+    public function testResizeHeight($sourceWdith, $sourceHeight, $targetWdith, $targetHeight)
     {
-        $source = __DIR__ . self::IMAGES_DIR . '/' . $sourceWdith . 'x' . $sourceHeight . '.jpg';
-        $target = __DIR__ . self::IMAGES_DIR . '/th-' . $targetWdith . 'x' . $targetHeight . '.jpg';
+        $extensions = [
+            'jpg',
+            'png',
+            'gif',
+        ];
 
-        $this->resizeImage($source, $target, $targetWdith, $targetHeight);
+        foreach ($extensions as $ext) {
+            $source = __DIR__ . self::IMAGES_DIR . '/' . $sourceWdith . 'x' . $sourceHeight . '.' . $ext;
+            $target = __DIR__ . self::IMAGES_DIR . '/th-' . $targetWdith . 'x' . $targetHeight . '.' . $ext;
 
-        $size = getimagesize($target);
+            $this->resizeImage($source, $target, $targetWdith, $targetHeight);
 
-        $this->assertEquals($targetWdith, $size[0]);
-        $this->assertEquals($targetHeight, $size[1]);
+            $size = getimagesize($target);
 
-        unlink($target);
+            $this->assertEquals($targetWdith, $size[0]);
+
+            unlink($target);
+        }
     }
 
     public function fixedResizeProvider()
     {
         return [
-            [300, 200, 200, 100],
-            [300, 200, 200, 200],
-            [300, 200, 100, 200],
-
-            [200, 280, 200, 100],
-            [200, 280, 200, 200],
-            [200, 280, 100, 200],
+            [300, 200, 200, 0],
+//            [300, 200, 200, 200],
+//            [300, 200, 100, 200],
+//            [300, 200, 10, 200],
+//            [300, 200, 100, 20],
+//            [300, 200, 50, 50],
+//
+//            [200, 280, 200, 100],
+//            [200, 280, 200, 200],
+//            [200, 280, 100, 200],
+//            [200, 280, 10, 200],
+//            [200, 280, 100, 20],
+//            [200, 280, 50, 50],
+//
+//            [200, 200, 200, 100],
+//            [200, 200, 200, 200],
+//            [200, 200, 100, 200],
+//            [200, 200, 10, 200],
+//            [200, 200, 100, 20],
+//            [200, 200, 50, 50],
         ];
     }
 }

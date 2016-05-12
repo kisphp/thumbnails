@@ -82,6 +82,11 @@ class ImageResizer
     protected $backgroundColor = [255, 255, 255];
 
     /**
+     * @var string
+     */
+    protected $contentType;
+
+    /**
      * set the quality of the resulted thumbnail (for jpeg files)
      *
      * @param int $quality
@@ -119,6 +124,7 @@ class ImageResizer
 
         switch ($this->mime) {
             case IMAGETYPE_PNG:
+                $this->contentType = 'image/png';
                 $this->thumb = imagecreatefrompng($sourceImageLocation);
                 // setting alpha blending off
                 imagealphablending($this->thumb, false);
@@ -127,11 +133,13 @@ class ImageResizer
                 break;
 
             case IMAGETYPE_GIF:
+                $this->contentType = 'image/gif';
                 $this->thumb = imagecreatefromgif($sourceImageLocation);
                 break;
 
             case IMAGETYPE_JPEG:
             case IMAGETYPE_JPEG2000:
+                $this->contentType = 'image/jpeg';
                 $this->thumb = imagecreatefromjpeg($sourceImageLocation);
                 break;
 
@@ -269,6 +277,8 @@ class ImageResizer
         $this->src_y = 0;
 
         if ($this->sourceWidth >= $this->sourceHeight) {
+
+
             if ($this->sourceWidth / $this->sourceHeight > $width / $height) {
                 $this->newWidth = $width;
                 $this->dst_x = ($this->sourceWidth - $width) / 2;
@@ -327,15 +337,15 @@ class ImageResizer
      *
      * @param int $width width
      * @param int $height height
-     *
      * @return resource|string
+     * @throws \Exception
      */
     protected function newThumb($width = 0, $height = 0)
     {
         $_w = ($width > 0) ? $width : $this->newWidth;
         $_h = ($height > 0) ? $height : $this->newHeight;
 
-        if ($this->mime == 'PNG') {
+        if ($this->mime == IMAGETYPE_PNG) {
             $this->thumb = imagecreatetruecolor($_w, $_h);
             $color = imagecolorallocate($this->thumb, $this->backgroundColor[0], $this->backgroundColor[1],
                 $this->backgroundColor[2]);
@@ -351,10 +361,11 @@ class ImageResizer
             imagefill($this->thumb, 10, 10, $color);
         }
 
-        if (!isset($this->mime) || $this->mime == '') {
-            $this->mime = 'JPG';
-            $this->newWidth = $_w;
-            $this->newHeight = $_h;
+        if (!isset($this->mime) || $this->mime == 0) {
+            throw new \Exception('fix me ' . __METHOD__);
+//            $this->mime = IMAGETYPE_JPEG;
+//            $this->newWidth = $_w;
+//            $this->newHeight = $_h;
         }
 
         return $this->thumb;
@@ -420,55 +431,50 @@ class ImageResizer
      */
     public function display($save = false)
     {
-        switch ($this->mime) {
+        $imageString = $this->getImageString();
 
-            case IMAGETYPE_PNG:
-                header('Content-type: image/png');
-                if ($save === true) {
-                    imagepng($this->thumb, $this->target, 0);
-                }
-                imagepng($this->thumb, null, 1);
-                break;
-
-            case IMAGETYPE_GIF:
-                header('Content-type: image/gif');
-                if ($save === true) {
-                    imagegif($this->thumb, $this->target);
-                }
-                imagegif($this->thumb, null);
-                break;
-
-            case IMAGETYPE_JPEG:
-            case IMAGETYPE_JPEG2000:
-                header('Content-type: image/jpeg');
-                if ($save === true) {
-                    imagejpeg($this->thumb, $this->target, $this->quality);
-                }
-                imagejpeg($this->thumb, null, $this->quality);
-                break;
-
-            default:
-                throw new ImageFileTypeNotAllowed();
+        if ($save === true) {
+            $this->save();
         }
+
+        return $imageString;
+
+
+//        switch ($this->mime) {
+//
+//            case IMAGETYPE_PNG:
+//                header('Content-type: image/png');
+//                if ($save === true) {
+//                    imagepng($this->thumb, $this->target, 0);
+//                }
+//                imagepng($this->thumb, null, 1);
+//                break;
+//
+//            case IMAGETYPE_GIF:
+//                header('Content-type: image/gif');
+//                if ($save === true) {
+//                    imagegif($this->thumb, $this->target);
+//                }
+//                imagegif($this->thumb, null);
+//                break;
+//
+//            case IMAGETYPE_JPEG:
+//            case IMAGETYPE_JPEG2000:
+//                header('Content-type: image/jpeg');
+//                if ($save === true) {
+//                    imagejpeg($this->thumb, $this->target, $this->quality);
+//                }
+//                imagejpeg($this->thumb, null, $this->quality);
+//                break;
+//
+//            default:
+//                throw new ImageFileTypeNotAllowed();
+//        }
     }
 
-    /**
-     * target file where will be the image saved
-     *
-     * @param string $targetDirectory
-     */
-    public function setTarget($targetDirectory)
+    public function getImageString()
     {
-        $this->target = $targetDirectory;
-    }
-
-    /**
-     * return the image string so you will be able to save it into a file
-     *
-     * @return string
-     */
-    public function __toString()
-    {
+        $imageTypeAccepted = true;
         ob_start();
         switch ($this->mime) {
 
@@ -486,17 +492,63 @@ class ImageResizer
                 break;
 
             default:
+                $imageTypeAccepted = false;
+        }
+        $image = ob_get_clean();
 
-                break;
+        if ($imageTypeAccepted === false) {
+            ob_clean();
+            throw new ImageFileTypeNotAllowed();
         }
 
-        $memoryBuffer = ob_get_clean();
-        if (is_resource($this->thumb)) {
-            imagedestroy($this->thumb);
-        }
-
-        return $memoryBuffer;
+        return $image;
     }
+
+    /**
+     * target file where will be the image saved
+     *
+     * @param string $targetDirectory
+     */
+    public function setTarget($targetDirectory)
+    {
+        $this->target = $targetDirectory;
+    }
+
+    /**
+     * return the image string so you will be able to save it into a file
+     *
+     * @return string
+     */
+//    public function __toString()
+//    {
+//        ob_start();
+//        switch ($this->mime) {
+//
+//            case IMAGETYPE_PNG:
+//                imagepng($this->thumb, null, 1);
+//                break;
+//
+//            case IMAGETYPE_GIF:
+//                imagegif($this->thumb, null);
+//                break;
+//
+//            case IMAGETYPE_JPEG:
+//            case IMAGETYPE_JPEG2000:
+//                imagejpeg($this->thumb, null, $this->quality);
+//                break;
+//
+//            default:
+//
+//                break;
+//        }
+//
+//        $memoryBuffer = ob_get_clean();
+//        if (is_resource($this->thumb)) {
+//            imagedestroy($this->thumb);
+//        }
+//
+//        return $memoryBuffer;
+//    }
 
     /**
      * @param $width
@@ -507,6 +559,16 @@ class ImageResizer
     {
         // landscape
         if ($this->sourceWidth >= $this->sourceHeight) {
+
+            dump($width . ' x ' . $height);
+            dump($this->sourceWidth);
+            dump($this->sourceHeight);
+
+            dump($this->sourceWidth / $this->sourceHeight);
+            dump($width / $height);
+
+            echo str_repeat('-', 50) . "\n";
+
             // keep landscape
             if (($this->sourceWidth / $this->sourceHeight) > ($width / $height)) {
                 ($cutImage === true)
