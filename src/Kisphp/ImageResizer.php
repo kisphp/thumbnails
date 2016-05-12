@@ -233,19 +233,7 @@ class ImageResizer
         if ($cutImage === true) {
             $this->doSimpleCrop($width, $height);
         } else {
-            if ($this->sourceWidth >= $this->sourceHeight) {
-                if (($this->sourceWidth / $this->sourceHeight) > ($width / $height)) {
-                    ($cutImage === true) ? $this->setHeight($height, false) : $this->setWidth($width, false);
-                } else {
-                    ($cutImage === true) ? $this->setWidth($width, false) : $this->setHeight($height, false);
-                }
-            } else {
-                if ($width >= $height) {
-                    ($cutImage === true) ? $this->setWidth($width) : $this->setHeight($height, false);
-                } else {
-                    ($cutImage === true) ? $this->setHeight($height) : $this->setWidth($width, false);
-                }
-            }
+            $this->setNewSize($width, $height, $cutImage);
             $this->resample();
             $this->resampleCrop();
         }
@@ -373,19 +361,28 @@ class ImageResizer
     }
 
     /**
-     * @param int $width width
-     * @param int $height height
+     * @param int $width
+     * @param int $height
      * @param bool $cutImage used in crop files if you want to cut from it and center the thumbnail
      */
     public function resize($width = 0, $height = 0, $cutImage = false)
     {
         $this->originalWidth = $width;
         $this->originalHeight = $height;
+
         if ($width > 0 && $height > 0) {
             $this->crop($width, $height, $cutImage);
-        } elseif ($width > 0 && $height <= 0) {
+
+            return;
+        }
+
+        if ($width > 0 && $height <= 0) {
             $this->setWidth($width, true);
-        } elseif ($height > 0 && $width <= 0) {
+
+            return;
+        }
+
+        if ($height > 0 && $width <= 0) {
             $this->setHeight($height, true);
         }
     }
@@ -499,5 +496,43 @@ class ImageResizer
         }
 
         return $memoryBuffer;
+    }
+
+    /**
+     * @param $width
+     * @param $height
+     * @param $cutImage
+     */
+    protected function setNewSize($width, $height, $cutImage)
+    {
+        // landscape
+        if ($this->sourceWidth >= $this->sourceHeight) {
+            // keep landscape
+            if (($this->sourceWidth / $this->sourceHeight) > ($width / $height)) {
+                ($cutImage === true)
+                    // cut image by height
+                    ? $this->setHeight($height, false)
+                    : $this->setWidth($width, false);
+            } else {
+                ($cutImage === true)
+                    ? $this->setWidth($width, false)
+                    : $this->setHeight($height, false);
+            }
+
+            return;
+        }
+
+        // portrait
+        if ($width >= $height) {
+            ($cutImage === true)
+                // cut image by withh
+                ? $this->setWidth($width)
+                // cut image by height
+                : $this->setHeight($height, false);
+        } else {
+            ($cutImage === true)
+                ? $this->setHeight($height)
+                : $this->setWidth($width, false);
+        }
     }
 }
