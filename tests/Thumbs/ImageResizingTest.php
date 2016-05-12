@@ -12,12 +12,12 @@ class ImageResizingTest extends PHPUnit_Framework_TestCase
      * @param int $height
      * @throws \Kisphp\ImageFileTypeNotAllowed
      */
-    protected function resizeImage($source, $target, $width, $height)
+    protected function resizeImage($source, $target, $width, $height, $cutImage = false)
     {
         $img = new \Kisphp\ImageResizer();
         $img->load($source);
         $img->setTarget($target);
-        $img->resize($width, $height);
+        $img->resize($width, $height, $cutImage);
         $img->save();
     }
 
@@ -48,6 +48,12 @@ class ImageResizingTest extends PHPUnit_Framework_TestCase
     {
         return [
             [300, 200, 200, 100],
+            [300, 200, 200, 200],
+            [300, 200, 100, 200],
+
+            [200, 280, 200, 100],
+            [200, 280, 200, 200],
+            [200, 280, 100, 200],
         ];
     }
 }
