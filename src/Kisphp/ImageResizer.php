@@ -277,8 +277,6 @@ class ImageResizer
         $this->src_y = 0;
 
         if ($this->sourceWidth >= $this->sourceHeight) {
-
-
             if ($this->sourceWidth / $this->sourceHeight > $width / $height) {
                 $this->newWidth = $width;
                 $this->dst_x = ($this->sourceWidth - $width) / 2;
@@ -337,8 +335,10 @@ class ImageResizer
      *
      * @param int $width width
      * @param int $height height
-     * @return resource|string
+     *
      * @throws \Exception
+     *
+     * @return resource|string
      */
     protected function newThumb($width = 0, $height = 0)
     {
@@ -438,7 +438,6 @@ class ImageResizer
         }
 
         return $imageString;
-
 
 //        switch ($this->mime) {
 //
@@ -557,17 +556,16 @@ class ImageResizer
      */
     protected function setNewSize($width, $height, $cutImage)
     {
+//        dump($this->sourceWidth . 'x' . $this->sourceHeight . ' | ' . $width . 'x' . $height);
+//        dump($this->sourceWidth);
+//        dump($this->sourceHeight);
+//
+//        dump($this->sourceWidth / $this->sourceHeight);
+//        dump($width / $height);
+//        echo str_repeat('-', 50) . "\n";
+
         // landscape
         if ($this->sourceWidth >= $this->sourceHeight) {
-
-            dump($width . ' x ' . $height);
-            dump($this->sourceWidth);
-            dump($this->sourceHeight);
-
-            dump($this->sourceWidth / $this->sourceHeight);
-            dump($width / $height);
-
-            echo str_repeat('-', 50) . "\n";
 
             // keep landscape
             if (($this->sourceWidth / $this->sourceHeight) > ($width / $height)) {
