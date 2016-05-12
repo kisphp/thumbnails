@@ -2,9 +2,9 @@
 
 use Kisphp\ImageResizer;
 
-class ExampleClassTest extends PHPUnit_Framework_TestCase
+class ThumbnailSizeCalculatorTest extends PHPUnit_Framework_TestCase
 {
-    const IMAGE_FILE = '/tmp/kisphp_image_file.jpg';
+    const IMAGE_FILE = __DIR__ . '/../images/kisphp_image_file.jpg';
 
     public function setUp()
     {
