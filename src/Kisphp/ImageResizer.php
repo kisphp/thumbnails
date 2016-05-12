@@ -87,6 +87,11 @@ class ImageResizer
     protected $contentType;
 
     /**
+     * @var string
+     */
+    protected $imageAsString;
+
+    /**
      * set the quality of the resulted thumbnail (for jpeg files)
      *
      * @param int $quality
@@ -361,13 +366,6 @@ class ImageResizer
             imagefill($this->thumb, 10, 10, $color);
         }
 
-        if (!isset($this->mime) || $this->mime == 0) {
-            throw new \Exception('fix me ' . __METHOD__);
-//            $this->mime = IMAGETYPE_JPEG;
-//            $this->newWidth = $_w;
-//            $this->newHeight = $_h;
-        }
-
         return $this->thumb;
     }
 
@@ -403,31 +401,19 @@ class ImageResizer
      */
     public function save()
     {
-        switch ($this->mime) {
-            case IMAGETYPE_PNG:
-                imagepng($this->thumb, $this->target, 0);
-                break;
+        $imageString = $this->getImageString();
 
-            case IMAGETYPE_GIF:
-                imagegif($this->thumb, $this->target);
-                break;
-
-            case IMAGETYPE_JPEG:
-            case IMAGETYPE_JPEG2000:
-                imagejpeg($this->thumb, $this->target, $this->quality);
-                break;
-
-            default:
-                throw new ImageFileTypeNotAllowed();
-        }
+        return (bool) file_put_contents($this->target, $imageString);
     }
 
     /**
      * display the image and save the file to disk (optional)
      *
-     * @param bool $save
+     * @param bool|false $save
      *
      * @throws ImageFileTypeNotAllowed
+     *
+     * @return string
      */
     public function display($save = false)
     {
@@ -438,42 +424,14 @@ class ImageResizer
         }
 
         return $imageString;
-
-//        switch ($this->mime) {
-//
-//            case IMAGETYPE_PNG:
-//                header('Content-type: image/png');
-//                if ($save === true) {
-//                    imagepng($this->thumb, $this->target, 0);
-//                }
-//                imagepng($this->thumb, null, 1);
-//                break;
-//
-//            case IMAGETYPE_GIF:
-//                header('Content-type: image/gif');
-//                if ($save === true) {
-//                    imagegif($this->thumb, $this->target);
-//                }
-//                imagegif($this->thumb, null);
-//                break;
-//
-//            case IMAGETYPE_JPEG:
-//            case IMAGETYPE_JPEG2000:
-//                header('Content-type: image/jpeg');
-//                if ($save === true) {
-//                    imagejpeg($this->thumb, $this->target, $this->quality);
-//                }
-//                imagejpeg($this->thumb, null, $this->quality);
-//                break;
-//
-//            default:
-//                throw new ImageFileTypeNotAllowed();
-//        }
     }
 
     public function getImageString()
     {
-        $imageTypeAccepted = true;
+        if ($this->imageAsString !== null) {
+            return $this->imageAsString;
+        }
+
         ob_start();
         switch ($this->mime) {
 
@@ -489,18 +447,10 @@ class ImageResizer
             case IMAGETYPE_JPEG2000:
                 imagejpeg($this->thumb, null, $this->quality);
                 break;
-
-            default:
-                $imageTypeAccepted = false;
         }
-        $image = ob_get_clean();
+        $this->imageAsString = ob_get_clean();
 
-        if ($imageTypeAccepted === false) {
-            ob_clean();
-            throw new ImageFileTypeNotAllowed();
-        }
-
-        return $image;
+        return $this->imageAsString;
     }
 
     /**
@@ -514,56 +464,12 @@ class ImageResizer
     }
 
     /**
-     * return the image string so you will be able to save it into a file
-     *
-     * @return string
-     */
-//    public function __toString()
-//    {
-//        ob_start();
-//        switch ($this->mime) {
-//
-//            case IMAGETYPE_PNG:
-//                imagepng($this->thumb, null, 1);
-//                break;
-//
-//            case IMAGETYPE_GIF:
-//                imagegif($this->thumb, null);
-//                break;
-//
-//            case IMAGETYPE_JPEG:
-//            case IMAGETYPE_JPEG2000:
-//                imagejpeg($this->thumb, null, $this->quality);
-//                break;
-//
-//            default:
-//
-//                break;
-//        }
-//
-//        $memoryBuffer = ob_get_clean();
-//        if (is_resource($this->thumb)) {
-//            imagedestroy($this->thumb);
-//        }
-//
-//        return $memoryBuffer;
-//    }
-
-    /**
      * @param $width
      * @param $height
      * @param $cutImage
      */
     protected function setNewSize($width, $height, $cutImage)
     {
-//        dump($this->sourceWidth . 'x' . $this->sourceHeight . ' | ' . $width . 'x' . $height);
-//        dump($this->sourceWidth);
-//        dump($this->sourceHeight);
-//
-//        dump($this->sourceWidth / $this->sourceHeight);
-//        dump($width / $height);
-//        echo str_repeat('-', 50) . "\n";
-
         // landscape
         if ($this->sourceWidth >= $this->sourceHeight) {
 

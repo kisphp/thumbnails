@@ -32,10 +32,10 @@ class ImageResizingTest extends PHPUnit_Framework_TestCase
      *
      * @param int $sourceWdith
      * @param int $sourceHeight
-     * @param int $targetWdith
+     * @param int $targetWidth
      * @param int $targetHeight
      */
-    public function testCrop($sourceWdith, $sourceHeight, $targetWdith, $targetHeight)
+    public function testCrop($sourceWdith, $sourceHeight, $targetWidth, $targetHeight)
     {
         $extensions = [
             'jpg',
@@ -45,13 +45,13 @@ class ImageResizingTest extends PHPUnit_Framework_TestCase
 
         foreach ($extensions as $ext) {
             $source = __DIR__ . self::IMAGES_DIR . '/' . $sourceWdith . 'x' . $sourceHeight . '.' . $ext;
-            $target = __DIR__ . self::IMAGES_DIR . '/th-' . $targetWdith . 'x' . $targetHeight . '.' . $ext;
+            $target = __DIR__ . self::IMAGES_DIR . '/th-' . $targetWidth . 'x' . $targetHeight . '.' . $ext;
 
-            $this->resizeImage($source, $target, $targetWdith, $targetHeight, true);
+            $this->resizeImage($source, $target, $targetWidth, $targetHeight, true);
 
             $size = getimagesize($target);
 
-            $this->assertEquals($targetWdith, $size[0]);
+            $this->assertEquals($targetWidth, $size[0]);
             $this->assertEquals($targetHeight, $size[1]);
 
             unlink($target);
@@ -89,10 +89,10 @@ class ImageResizingTest extends PHPUnit_Framework_TestCase
      *
      * @param int $sourceWdith
      * @param int $sourceHeight
-     * @param int $targetWdith
+     * @param int $targetWidth
      * @param int $targetHeight
      */
-    public function testResizeHeight($sourceWdith, $sourceHeight, $targetWdith, $targetHeight)
+    public function testResizeHeight($sourceWdith, $sourceHeight, $targetWidth, $targetHeight)
     {
         $extensions = [
             'jpg',
@@ -102,13 +102,13 @@ class ImageResizingTest extends PHPUnit_Framework_TestCase
 
         foreach ($extensions as $ext) {
             $source = __DIR__ . self::IMAGES_DIR . '/' . $sourceWdith . 'x' . $sourceHeight . '.' . $ext;
-            $target = __DIR__ . self::IMAGES_DIR . '/th-' . $targetWdith . 'x' . $targetHeight . '.' . $ext;
+            $target = __DIR__ . self::IMAGES_DIR . '/th-' . $targetWidth . 'x' . $targetHeight . '.' . $ext;
 
-            $this->resizeImage($source, $target, $targetWdith, $targetHeight);
+            $this->resizeImage($source, $target, $targetWidth, $targetHeight);
 
             $size = getimagesize($target);
 
-            $this->assertEquals($targetWdith, $size[0]);
+            $this->assertEquals($targetWidth, $size[0]);
 
             unlink($target);
         }
@@ -134,10 +134,10 @@ class ImageResizingTest extends PHPUnit_Framework_TestCase
      *
      * @param int $sourceWdith
      * @param int $sourceHeight
-     * @param int $targetWdith
+     * @param int $targetWidth
      * @param int $targetHeight
      */
-    public function testResizeWidth($sourceWdith, $sourceHeight, $targetWdith, $targetHeight)
+    public function testResizeWidth($sourceWdith, $sourceHeight, $targetWidth, $targetHeight)
     {
         $extensions = [
             'jpg',
@@ -147,9 +147,9 @@ class ImageResizingTest extends PHPUnit_Framework_TestCase
 
         foreach ($extensions as $ext) {
             $source = __DIR__ . self::IMAGES_DIR . '/' . $sourceWdith . 'x' . $sourceHeight . '.' . $ext;
-            $target = __DIR__ . self::IMAGES_DIR . '/th-' . $targetWdith . 'x' . $targetHeight . '.' . $ext;
+            $target = __DIR__ . self::IMAGES_DIR . '/th-' . $targetWidth . 'x' . $targetHeight . '.' . $ext;
 
-            $this->resizeImage($source, $target, $targetWdith, $targetHeight, true);
+            $this->resizeImage($source, $target, $targetWidth, $targetHeight, true);
 
             $size = getimagesize($target);
 
@@ -166,5 +166,18 @@ class ImageResizingTest extends PHPUnit_Framework_TestCase
             [200, 200, 10, 100],
             [200, 280, 10, 100],
         ];
+    }
+
+    /**
+     * @expectedException Kisphp\ImageFileTypeNotAllowed
+     */
+    public function testResizeBmpImage()
+    {
+        $targetWidth = 200;
+        $targetHeight = 200;
+        $source = __DIR__ . self::IMAGES_DIR . '/not-supported-image.bmp';
+        $target = __DIR__ . self::IMAGES_DIR . '/th-not-supported.jpg';
+
+        $this->resizeImage($source, $target, $targetWidth, $targetHeight, true);
     }
 }
