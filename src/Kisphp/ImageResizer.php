@@ -98,7 +98,7 @@ class ImageResizer
      */
     public function __construct($quality = self::JPEG_QUALITY)
     {
-        $this->quality = max(1, min(100, abs(intval($quality))));
+        $this->quality = max(1, min(100, abs((int) $quality)));
     }
 
     /**
@@ -279,6 +279,9 @@ class ImageResizer
      */
     protected function getImageType($sourceImageLocation)
     {
+        if (is_file($sourceImageLocation) === false) {
+            return IMAGETYPE_JPEG;
+        }
         return \exif_imagetype($sourceImageLocation);
     }
 
@@ -290,7 +293,7 @@ class ImageResizer
      */
     protected function setWidth($width, $resample = true)
     {
-        $this->newWidth = abs(intval($width));
+        $this->newWidth = abs((int) $width);
         $this->newHeight = floor(($width / $this->sourceWidth) * $this->sourceHeight);
 
         if ($resample === true) {
@@ -306,7 +309,7 @@ class ImageResizer
      */
     protected function setHeight($height, $resample = true)
     {
-        $this->newHeight = abs(intval($height));
+        $this->newHeight = abs((int) $height);
         $this->newWidth = floor(($height / $this->sourceHeight) * $this->sourceWidth);
 
         if ($resample === true) {

@@ -1,0 +1,7 @@
+version: '3'
+services:
+  php:
+    image: registry.gitlab.com/marius-rizac/ci-registry/php7.1:1.1.0
+    volumes:
+      - ./:/project
+    command: "/bin/cd /project && composer install && vendor/bin/phpunit"
