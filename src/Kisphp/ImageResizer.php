@@ -279,7 +279,7 @@ class ImageResizer
      */
     protected function getImageType($sourceImageLocation)
     {
-        return exif_imagetype($sourceImageLocation);
+        return \exif_imagetype($sourceImageLocation);
     }
 
     /**
