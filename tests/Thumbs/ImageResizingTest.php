@@ -1,7 +1,11 @@
 <?php
 
+namespace Tests\Thumbs;
 
-class ImageResizingTest extends PHPUnit_Framework_TestCase
+use Kisphp\ImageResizer;
+use PHPUnit\Framework\TestCase;
+
+class ImageResizingTest extends TestCase
 {
     const IMAGES_DIR = '/../images';
 
@@ -14,7 +18,7 @@ class ImageResizingTest extends PHPUnit_Framework_TestCase
      */
     protected function resizeImage($source, $target, $width, $height, $cutImage = false)
     {
-        $img = new \Kisphp\ImageResizer();
+        $img = new ImageResizer();
         $img->load($source);
         $img->setTarget($target);
         $img->resize($width, $height, $cutImage);
@@ -169,7 +173,7 @@ class ImageResizingTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Kisphp\ImageFileTypeNotAllowed
+     * @expectedException \Kisphp\ImageFileTypeNotAllowed
      */
     public function testResizeBmpImage()
     {

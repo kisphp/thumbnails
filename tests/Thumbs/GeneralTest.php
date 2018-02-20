@@ -1,7 +1,11 @@
 <?php
 
+namespace Tests\Thumbs;
 
-class GeneralTest extends PHPUnit_Framework_TestCase
+use Kisphp\ImageResizer;
+use PHPUnit\Framework\TestCase;
+
+class GeneralTest extends TestCase
 {
     const IMAGES_DIR = '/../images';
 
@@ -13,16 +17,16 @@ class GeneralTest extends PHPUnit_Framework_TestCase
         $source = __DIR__ . self::IMAGES_DIR . '/300x200.jpg';
         $target = __DIR__ . self::IMAGES_DIR . '/th-dummy.jpg';
 
-        $im = new \Kisphp\ImageResizer();
-        $im->setBackgroundColor(25, 25, 25);
-        $im->load($source);
-        $im->setTarget($target);
+        $img = new ImageResizer();
+        $img->setBackgroundColor(25, 25, 25);
+        $img->load($source);
+        $img->setTarget($target);
 
-        $im->resize(100, 100);
+        $img->resize(100, 100);
 
-        $im->save();
+        $img->save();
 
-        $imageContent = $im->display(true);
+        $imageContent = $img->display(true);
 
         $this->assertNotNull($imageContent);
 
@@ -39,13 +43,13 @@ class GeneralTest extends PHPUnit_Framework_TestCase
         $source = __DIR__ . self::IMAGES_DIR . '/300x200.jpg';
         $target = __DIR__ . self::IMAGES_DIR . '/th-dummy.jpg';
 
-        $im = new \Kisphp\ImageResizer();
-        $im->load($source);
-        $im->setTarget($target);
+        $img = new ImageResizer();
+        $img->load($source);
+        $img->setTarget($target);
 
-        $im->resize($width, $height);
+        $img->resize($width, $height);
 
-        $im->save();
+        $img->save();
 
         $size = getimagesize($target);
 
