@@ -57,22 +57,22 @@ class ImageResizer
     protected $newHeight = 0;
 
     /**
-     * @var int
+     * @var float|int
      */
     protected $src_x = 0;
 
     /**
-     * @var int
+     * @var float|int
      */
     protected $src_y = 0;
 
     /**
-     * @var int
+     * @var float|int
      */
     protected $dst_x = 0;
 
     /**
-     * @var int
+     * @var float|int
      */
     protected $dst_y = 0;
 
