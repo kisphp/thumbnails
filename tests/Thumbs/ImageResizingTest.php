@@ -1,7 +1,10 @@
 <?php
 
+namespace Tests\Thumbs;
 
-class ImageResizingTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class ImageResizingTest extends TestCase
 {
     const IMAGES_DIR = '/../images';
 

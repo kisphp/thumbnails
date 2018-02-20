@@ -17,7 +17,7 @@ class ImageResizer
     protected $mime;
 
     /**
-     * @var Resource
+     * @var resource
      */
     protected $thumb;
 
@@ -92,7 +92,7 @@ class ImageResizer
     protected $imageAsString;
 
     /**
-     * set the quality of the resulted thumbnail (for jpeg files)
+     * set the quality of the resulted thumbnail (for jpeg files).
      *
      * @param int $quality
      */
@@ -133,7 +133,7 @@ class ImageResizer
     }
 
     /**
-     * load image file to resize
+     * load image file to resize.
      *
      * @param string $sourceImageLocation = /path/to/my/file
      *
@@ -151,19 +151,19 @@ class ImageResizer
                 imagealphablending($this->thumb, false);
                 // save alphablending setting (important)
                 imagesavealpha($this->thumb, true);
-                break;
 
+                break;
             case IMAGETYPE_GIF:
                 $this->contentType = 'image/gif';
                 $this->thumb = imagecreatefromgif($sourceImageLocation);
-                break;
 
+                break;
             case IMAGETYPE_JPEG:
             case IMAGETYPE_JPEG2000:
                 $this->contentType = 'image/jpeg';
                 $this->thumb = imagecreatefromjpeg($sourceImageLocation);
-                break;
 
+                break;
             default:
                 throw new ImageFileTypeNotAllowed();
         }
@@ -200,7 +200,7 @@ class ImageResizer
     }
 
     /**
-     * save the file to disk
+     * save the file to disk.
      */
     public function save()
     {
@@ -210,7 +210,7 @@ class ImageResizer
     }
 
     /**
-     * display the image and save the file to disk (optional)
+     * display the image and save the file to disk (optional).
      *
      * @param bool|false $save
      *
@@ -243,18 +243,18 @@ class ImageResizer
 
         ob_start();
         switch ($this->mime) {
-
             case IMAGETYPE_PNG:
                 imagepng($this->thumb, null, 1);
-                break;
 
+                break;
             case IMAGETYPE_GIF:
                 imagegif($this->thumb, null);
-                break;
 
+                break;
             case IMAGETYPE_JPEG:
             case IMAGETYPE_JPEG2000:
                 imagejpeg($this->thumb, null, $this->quality);
+
                 break;
         }
         $this->imageAsString = ob_get_clean();
@@ -263,7 +263,7 @@ class ImageResizer
     }
 
     /**
-     * target file where will be the image saved
+     * target file where will be the image saved.
      *
      * @param string $targetDirectory
      */
@@ -282,11 +282,12 @@ class ImageResizer
         if (is_file($sourceImageLocation) === false) {
             return IMAGETYPE_JPEG;
         }
+
         return \exif_imagetype($sourceImageLocation);
     }
 
     /**
-     * set the width of the thumbnail and calculate the height
+     * set the width of the thumbnail and calculate the height.
      *
      * @param int $width
      * @param bool $resample
@@ -302,7 +303,7 @@ class ImageResizer
     }
 
     /**
-     * set the height of the thumbnail and calculate the witdh
+     * set the height of the thumbnail and calculate the witdh.
      *
      * @param int $height
      * @param bool $resample
@@ -318,14 +319,15 @@ class ImageResizer
     }
 
     /**
-     * resample the image
+     * resample the image.
      */
     protected function resample()
     {
         $thumbnailCopy = $this->thumb;
         $this->thumb = $this->newThumb();
 
-        imagecopyresampled($this->thumb, // (dst_img) Destination image link resource.
+        imagecopyresampled(
+            $this->thumb, // (dst_img) Destination image link resource.
             $thumbnailCopy, // (src_img) Source image link resource.
             0, // (dst_x) x-coordinate of destination point.
             0, // (dst_y) y-coordinate of destination point.
@@ -405,7 +407,8 @@ class ImageResizer
         $tmp = $this->thumb;
         $this->thumb = $this->newThumb();
 
-        imagecopy($this->thumb, // (dst_img) Destination image link resource.
+        imagecopy(
+            $this->thumb, // (dst_img) Destination image link resource.
             $tmp, // (src_img) Source image link resource.
             $this->src_x, // (src_x) x-coordinate of source point.
             $this->src_y, // (src_y) y-coordinate of source point.
@@ -417,21 +420,21 @@ class ImageResizer
     }
 
     /**
-     * resize the image and if it is below the requested dimensions puts a blank image below and merges them
+     * resize the image and if it is below the requested dimensions puts a blank image below and merges them.
      */
     protected function resampleCrop()
     {
-        if ($this->originalWidth > 0 && $this->originalHeight > 0 && ($this->newWidth != $this->originalWidth || $this->newHeight != $this->originalHeight)) {
+        if ($this->originalWidth > 0 && $this->originalHeight > 0 && ($this->newWidth !== $this->originalWidth || $this->newHeight !== $this->originalHeight)) {
             $tmp = $this->thumb;
             $this->thumb = $this->newThumb($this->originalWidth, $this->originalHeight);
 
             $_top = 0;
             $_bottom = 0;
 
-            if ($this->newWidth != $this->originalWidth) {
+            if ($this->newWidth !== $this->originalWidth) {
                 $_top = ($this->originalWidth - $this->newWidth) / 2;
             }
-            if ($this->newHeight != $this->originalHeight) {
+            if ($this->newHeight !== $this->originalHeight) {
                 $_bottom = ($this->originalHeight - $this->newHeight) / 2;
             }
             imagecopy($this->thumb, $tmp, $_top, $_bottom, 0, 0, $this->newWidth, $this->newHeight);
@@ -439,7 +442,7 @@ class ImageResizer
     }
 
     /**
-     * generate a new thumbnail with the specified dimensions
+     * generate a new thumbnail with the specified dimensions.
      *
      * @param int $width width
      * @param int $height height
@@ -453,10 +456,14 @@ class ImageResizer
         $_w = ($width > 0) ? $width : $this->newWidth;
         $_h = ($height > 0) ? $height : $this->newHeight;
 
-        if ($this->mime == IMAGETYPE_PNG) {
+        if ($this->mime === IMAGETYPE_PNG) {
             $this->thumb = imagecreatetruecolor($_w, $_h);
-            $color = imagecolorallocate($this->thumb, $this->backgroundColor[0], $this->backgroundColor[1],
-                $this->backgroundColor[2]);
+            $color = imagecolorallocate(
+                $this->thumb,
+                $this->backgroundColor[0],
+                $this->backgroundColor[1],
+                $this->backgroundColor[2]
+            );
             imagefill($this->thumb, 0, 0, $color);
             // setting alpha blending off
             imagealphablending($this->thumb, false);
@@ -464,8 +471,12 @@ class ImageResizer
             imagesavealpha($this->thumb, true);
         } else {
             $this->thumb = imagecreatetruecolor($_w, $_h);
-            $color = imagecolorallocate($this->thumb, $this->backgroundColor[0], $this->backgroundColor[1],
-                $this->backgroundColor[2]);
+            $color = imagecolorallocate(
+                $this->thumb,
+                $this->backgroundColor[0],
+                $this->backgroundColor[1],
+                $this->backgroundColor[2]
+            );
             imagefill($this->thumb, 10, 10, $color);
         }
 
@@ -481,7 +492,6 @@ class ImageResizer
     {
         // landscape
         if ($this->sourceWidth >= $this->sourceHeight) {
-
             // keep landscape
             if (($this->sourceWidth / $this->sourceHeight) > ($width / $height)) {
                 ($cutImage === true)

@@ -1,8 +1,11 @@
 <?php
 
-use Kisphp\ImageResizer;
+namespace Tests\Thumbs;
 
-class ThumbnailSizeCalculatorTest extends PHPUnit_Framework_TestCase
+use Kisphp\ImageResizer;
+use PHPUnit\Framework\TestCase;
+
+class ThumbnailSizeCalculatorTest extends TestCase
 {
     const IMAGE_FILE = '/../images/kisphp_image_file.jpg';
 

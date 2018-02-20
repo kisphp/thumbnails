@@ -1,7 +1,11 @@
 <?php
 
+namespace Tests\Thumbs;
 
-class GeneralTest extends PHPUnit_Framework_TestCase
+use Kisphp\ImageResizer;
+use PHPUnit\Framework\TestCase;
+
+class GeneralTest extends TestCase
 {
     const IMAGES_DIR = '/../images';
 
@@ -13,7 +17,7 @@ class GeneralTest extends PHPUnit_Framework_TestCase
         $source = __DIR__ . self::IMAGES_DIR . '/300x200.jpg';
         $target = __DIR__ . self::IMAGES_DIR . '/th-dummy.jpg';
 
-        $im = new \Kisphp\ImageResizer();
+        $im = new ImageResizer();
         $im->setBackgroundColor(25, 25, 25);
         $im->load($source);
         $im->setTarget($target);
@@ -39,7 +43,7 @@ class GeneralTest extends PHPUnit_Framework_TestCase
         $source = __DIR__ . self::IMAGES_DIR . '/300x200.jpg';
         $target = __DIR__ . self::IMAGES_DIR . '/th-dummy.jpg';
 
-        $im = new \Kisphp\ImageResizer();
+        $im = new ImageResizer();
         $im->load($source);
         $im->setTarget($target);
 
