@@ -14,7 +14,7 @@ class ImageResizer
     /**
      * @var int
      */
-    protected $mime;
+    protected $mimeType;
 
     /**
      * @var resource
@@ -59,22 +59,22 @@ class ImageResizer
     /**
      * @var float|int
      */
-    protected $src_x = 0;
+    protected $sourceX = 0;
 
     /**
      * @var float|int
      */
-    protected $src_y = 0;
+    protected $sourceY = 0;
 
     /**
      * @var float|int
      */
-    protected $dst_x = 0;
+    protected $destinationX = 0;
 
     /**
      * @var float|int
      */
-    protected $dst_y = 0;
+    protected $destinationY = 0;
 
     /**
      * @var array default white color rgb format
@@ -141,9 +141,9 @@ class ImageResizer
      */
     public function load($sourceImageLocation)
     {
-        $this->mime = $this->getImageType($sourceImageLocation);
+        $this->mimeType = $this->getImageType($sourceImageLocation);
 
-        switch ($this->mime) {
+        switch ($this->mimeType) {
             case IMAGETYPE_PNG:
                 $this->contentType = 'image/png';
                 $this->thumb = imagecreatefrompng($sourceImageLocation);
@@ -165,7 +165,7 @@ class ImageResizer
 
                 break;
             default:
-                throw new ImageFileTypeNotAllowed();
+                throw new ImageFileTypeNotAllowed('This is not a valid image type');
         }
 
         $this->sourceWidth = $this->newWidth = imagesx($this->thumb);
@@ -200,7 +200,7 @@ class ImageResizer
     }
 
     /**
-     * save the file to disk.
+     * @return bool
      */
     public function save()
     {
@@ -226,7 +226,7 @@ class ImageResizer
             $this->save();
         }
         if (!headers_sent()) {
-            header('Content-Type: ' . $this->mime);
+            header('Content-Type: ' . $this->mimeType);
         }
 
         return $imageString;
@@ -242,7 +242,7 @@ class ImageResizer
         }
 
         ob_start();
-        switch ($this->mime) {
+        switch ($this->mimeType) {
             case IMAGETYPE_PNG:
                 imagepng($this->thumb, null, 1);
 
@@ -320,6 +320,8 @@ class ImageResizer
 
     /**
      * resample the image.
+     *
+     * @throws \Exception
      */
     protected function resample()
     {
@@ -381,26 +383,26 @@ class ImageResizer
         $this->sourceWidth = $this->newWidth;
         $this->sourceHeight = $this->newHeight;
 
-        $this->dst_x = 0;
-        $this->dst_y = 0;
-        $this->src_x = 0;
-        $this->src_y = 0;
+        $this->destinationX = 0;
+        $this->destinationY = 0;
+        $this->sourceX = 0;
+        $this->sourceY = 0;
 
         if ($this->sourceWidth >= $this->sourceHeight) {
             if ($this->sourceWidth / $this->sourceHeight > $width / $height) {
                 $this->newWidth = $width;
-                $this->dst_x = ($this->sourceWidth - $width) / 2;
+                $this->destinationX = ($this->sourceWidth - $width) / 2;
             } else {
                 $this->newHeight = $height;
-                $this->dst_y = ($this->sourceHeight - $height) / 2;
+                $this->destinationY = ($this->sourceHeight - $height) / 2;
             }
         } else {
             if ($width >= $height) {
                 $this->newHeight = $height;
-                $this->dst_y = ($this->sourceHeight - $height) / 2;
+                $this->destinationY = ($this->sourceHeight - $height) / 2;
             } else {
                 $this->newWidth = $width;
-                $this->dst_x = ($this->sourceWidth - $width) / 2;
+                $this->destinationX = ($this->sourceWidth - $width) / 2;
             }
         }
 
@@ -410,10 +412,10 @@ class ImageResizer
         imagecopy(
             $this->thumb, // (dst_img) Destination image link resource.
             $tmp, // (src_img) Source image link resource.
-            $this->src_x, // (src_x) x-coordinate of source point.
-            $this->src_y, // (src_y) y-coordinate of source point.
-            $this->dst_x, // (src_x) x-coordinate of source point.
-            $this->dst_y, // (src_y) y-coordinate of source point.
+            $this->sourceX, // (src_x) x-coordinate of source point.
+            $this->sourceY, // (src_y) y-coordinate of source point.
+            $this->destinationX, // (src_x) x-coordinate of source point.
+            $this->destinationY, // (src_y) y-coordinate of source point.
             $this->sourceWidth, // (sourceWidth) Source width.
             $this->sourceHeight// (sourceHeight) Source height.
         );
@@ -456,7 +458,7 @@ class ImageResizer
         $calculatedWidth = ($width > 0) ? $width : $this->newWidth;
         $calculatedHeight = ($height > 0) ? $height : $this->newHeight;
 
-        if ($this->mime === IMAGETYPE_PNG) {
+        if ($this->mimeType === IMAGETYPE_PNG) {
             $this->thumb = imagecreatetruecolor($calculatedWidth, $calculatedHeight);
             $color = imagecolorallocate(
                 $this->thumb,
