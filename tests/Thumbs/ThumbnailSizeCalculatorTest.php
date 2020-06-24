@@ -9,13 +9,13 @@ class ThumbnailSizeCalculatorTest extends TestCase
 {
     const IMAGE_FILE = '/../images/kisphp_image_file.jpg';
 
-    public function setUp()
+    public function setUp() : void
     {
         $testImage = imagecreate(200, 80);
         imagejpeg($testImage, __DIR__ . self::IMAGE_FILE);
     }
 
-    public function tearDown()
+    public function tearDown() : void
     {
         if ( is_file(__DIR__ . self::IMAGE_FILE) ) {
             unlink(__DIR__ . self::IMAGE_FILE);
