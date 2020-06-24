@@ -2,7 +2,8 @@
     "name": "kisphp/thumbnails",
     "description": "Kisphp thumbnails generator",
     "license": "MIT",
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "authors": [
         {
             "name": "Marius Bogdan Rizac",
