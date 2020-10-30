@@ -1,12 +1,15 @@
 on: [push]
 jobs:
-  run:
+  build:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
       - name: Report PHP version
         run: php -v
+      - name: Report composer
+        run: which composer
       - name: Install dependencies
-        run: composer install -n
+        run: composer install
       - name: Run test suite
         run: vendor/bin/phpunit
 
