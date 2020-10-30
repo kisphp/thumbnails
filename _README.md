@@ -67,5 +67,4 @@ $image->resize(new_width, new_height, crop_image=true|false);
 $image->display();
 ```
 
-> Note that this methods outputs `header('Content-Type: image/..mime-type..')`
-
+> Note that these methods outputs `header('Content-Type: image/..mime-type..')`
