@@ -12,33 +12,5 @@ jobs:
         run: composer install
       - name: Run test suite
         run: vendor/bin/phpunit
-
-#on:
-#  push:
-#    branches: ["*"]
-#  pull_request:
-#    branches: ["*"]
-#
-#jobs:
-#  run:
-#    runs-on: ${{ matrix.operating-system }}
-#    strategy:
-#      matrix:
-#        operating-system: [ubuntu-latest]
-#        php-versions: ['7.1', '7.2', '7.3', '7.4', '8.0']
-#    name: PHP ${{ matrix.php-versions }} Test on ${{ matrix.operating-system }}
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v2
-#
-#      - name: Setup PHP
-#        uses: shivammathur/setup-php@v2
-#        with:
-#          php-version: ${{ matrix.php-versions }}
-#          extensions: mbstring, intl
-#          ini-values: post_max_size=256M, short_open_tag=On
-#          coverage: xdebug
-#          tools: phpunit
-#
-##      - name: Run composer
-##        run: composer install -n
+      - name: Run code fixer
+        run: vendor/bin/php-cs-fixer fix --dry-run
