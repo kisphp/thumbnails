@@ -9,6 +9,8 @@ jobs:
         run: php -v
       - name: Report composer
         run: which composer
+      - name: check command
+        run: composer install -h
       - name: Install dependencies
         run: composer install
       - name: Run test suite
