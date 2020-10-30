@@ -1,0 +1,13 @@
+on:
+  push:
+    branches: ["*"]
+  pull_request:
+    branches: ["*"]
+
+jobs:
+  build:
+    run-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: "run one line"
+        run: "php -v"
