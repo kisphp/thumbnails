@@ -1,0 +1,14 @@
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Report PHP version
+        run: php -v
+      - name: Install dependencies
+        run: composer install
+      - name: Run test suite
+        run: vendor/bin/phpunit
+      - name: Run code fixer
+        run: vendor/bin/php-cs-fixer fix --dry-run
