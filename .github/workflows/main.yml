@@ -9,6 +9,8 @@ jobs:
           extensions: "xdebug-beta"
       - name: Report PHP version
         run: php -v
+      - name: show files list
+        run: pwd && ls -la
       - name: Install dependencies
         run: composer install
       - name: Run test suite
