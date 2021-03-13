@@ -1,11 +1,16 @@
 on: [push]
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v1
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "7.4"
+          extensions: "xdebug-beta"
       - name: Report PHP version
         run: php -v
+      - name: show files list
+        run: pwd && ls -la
       - name: Install dependencies
         run: composer install
       - name: Run test suite
